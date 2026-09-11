@@ -1,4 +1,5 @@
 name: Build
+run-name: "Build ${{ inputs.leg || github.event_name }} ${{ inputs.racecar_run }}"
 
 on:
   push:
@@ -6,6 +7,24 @@ on:
   pull_request:
     branches: [ master ]
 
+  workflow_dispatch:
+    inputs:
+      leg:
+        description: "baseline (uninstrumented) or instrumented (under chalk/curiosity)"
+        type: choice
+        options: [instrumented, baseline]
+        default: baseline
+      profile:
+        description: "CrashOverride chalk profile"
+        type: string
+        default: curiosity-tests-racecar
+      racecar_run:
+        description: "racecar correlation token, echoed into the run name"
+        type: string
+        default: ""
+
+env:
+  CHALK_ON: ${{ inputs.leg == 'instrumented' }}
 permissions:
   contents: read
 
@@ -37,6 +56,7 @@ jobs:
       run: './factor -run=help.lint resource:core resource:basis resource:extra'
 
   build-macos-intel:
+    if: false   # racecar: non-Linux runner, not measured here
     runs-on: macos-15-intel
     steps:
     - uses: actions/checkout@v4
@@ -50,6 +70,7 @@ jobs:
       run: './factor -run=help.lint resource:core resource:basis resource:extra'
 
   build-macos-arm:
+    if: false   # racecar: non-Linux runner, not measured here
     runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
@@ -63,6 +84,7 @@ jobs:
       run: './factor -run=help.lint resource:core resource:basis resource:extra'
 
   build-windows-intel:
+    if: false   # racecar: non-Linux runner, not measured here
     runs-on: windows-2022
     steps:
     - uses: actions/checkout@v4
@@ -87,6 +109,7 @@ jobs:
       run: 'factor -run=help.lint resource:core resource:basis resource:extra'
 
   build-windows-arm:
+    if: false   # racecar: non-Linux runner, not measured here
     runs-on: windows-11-arm
     steps:
     - uses: actions/checkout@v4
